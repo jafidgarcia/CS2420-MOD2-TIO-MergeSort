@@ -266,6 +266,21 @@ void MergeSort<T>::runSort() {
 	runSort(0, this->capacity);
 }
 
+template <typename T>
+void runSort(const unsigned int firstIndex, const unsigned int lastIndex){
+	// Verify that the array region is at least two items large, as arrays 
+	// of size 1 are sorted by definition, and sizes smaller than 1 shouldn't be processed.
+	if((lastIndex - firstIndex) < 2){
+		return;
+	}
+	// Determine how to split the array into two halves
+	unsigned int middleIndex = (lastIndex + firstIndex) % 2;
+
+	//  Recursively calls each runSort() on each half of the array region.
+	runSort(firstIndex,middleIndex);
+	runSort(middleIndex,lastIndex);
+
+}
 
 
 
