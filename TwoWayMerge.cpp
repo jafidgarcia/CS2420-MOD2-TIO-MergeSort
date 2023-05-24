@@ -45,7 +45,7 @@ template <typename T>
 void BaseSort<T>::loadRandomValues() {
 	std::random_device rd;  //Will be used to obtain a seed for the random number engine
 	std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-	std::uniform_int_distribution<unsigned int> distrib(0, 0xffffffffui32);
+	std::uniform_int_distribution<unsigned int> distrib(0, 0xffffffff);
 
 	for (unsigned int i = 0; i < capacity; ++i) {
 		this->arr[i] = distrib(gen);
@@ -250,11 +250,12 @@ void Heap<T>::runSort() {
 	}
 }
 
+////////////////////////////// 
 // ADDING MERGE SORT HERE
 template <typename T>
 class MergeSort : public BaseSort<T> {
 public:
-	MergeSort(const unsigned int capacity) : BaseSort<T>("Two-Way-Merge", capacity) {};
+	MergeSort(const unsigned int capacity) : BaseSort<T>("MergeSort", capacity) {};
 	void runSort();
 private:
 	// his method is the core of the sorting algorithm
@@ -267,18 +268,73 @@ void MergeSort<T>::runSort() {
 }
 
 template <typename T>
-void runSort(const unsigned int firstIndex, const unsigned int lastIndex){
+void MergeSort<T>::runSort(const unsigned int firstIndex, const unsigned int lastIndex){
 	// Verify that the array region is at least two items large, as arrays 
 	// of size 1 are sorted by definition, and sizes smaller than 1 shouldn't be processed.
 	if((lastIndex - firstIndex) < 2){
 		return;
 	}
 	// Determine how to split the array into two halves
-	unsigned int middleIndex = (lastIndex + firstIndex) % 2;
+	unsigned int middleIndex = (lastIndex + firstIndex) / 2;
 
 	//  Recursively calls each runSort() on each half of the array region.
 	runSort(firstIndex,middleIndex);
 	runSort(middleIndex,lastIndex);
+
+	// Compute the size of your left array half
+	unsigned int leftHalfsies = middleIndex - firstIndex;
+
+	// Compute the size of your right array half
+	unsigned int rightHalfsies = lastIndex - middleIndex;
+
+	// Create a temporary array to store the left & right array half. 
+	T* leftArray = new T[leftHalfsies];
+	T* rightArray = new T[rightHalfsies];
+
+	// Create a loop to copy all values from the left array half into leftArray and same for rightSide.
+	for (int i = 0; i < leftHalfsies; i++){
+		leftArray[i] = this->arr[firstIndex + i];
+	}
+
+	for (int i = 0; i < rightHalfsies; i++){
+		rightArray[i] = this->arr[middleIndex + i];
+	}
+
+	// 4b) sorting the each half back into the original array.
+	unsigned int leftIndex = 0;
+	unsigned int rightIndex = 0;
+	unsigned int arrIndex = firstIndex;
+
+	// Merge the smallest values from either the leftArray or the 
+	// rightArray by creating a while loop with the following structure
+	while(leftIndex < leftHalfsies && rightIndex < rightHalfsies){
+		if (leftArray[leftIndex] <= rightArray[rightIndex]){
+			this->arr[arrIndex] = leftArray[leftIndex];
+			leftIndex++;
+		}else{
+			this->arr[arrIndex] = rightArray[rightIndex];
+			rightIndex++;
+		}
+		arrIndex++;
+	}
+
+	// complete the merging logic
+	while ((leftIndex < leftHalfsies)){
+		this->arr[arrIndex] = leftArray[leftIndex];
+		leftIndex++;
+		arrIndex++;
+	}
+	while(rightIndex < rightHalfsies){
+		this->arr[arrIndex] = rightArray[rightIndex];
+		rightIndex++;
+		arrIndex++;
+	}
+
+	// reclaim the two dynamic arrays
+	delete[] leftArray;
+	delete[] rightArray;
+
+
 
 }
 
